@@ -10,16 +10,15 @@ use std::io;
 pub enum AppEvents {
     None,
     Exit,
-    ChangeToSortingPopupWindow,
+    OpenSortingPopupWindow,
     ChangeToExplorerWindow,
-    ChangeToKeyMappingPopupWindow,
+    OpenKeyMappingPopupWindow,
+    ClosePopUp,
 }
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 pub enum AppWindows {
     Explorer = 0,
-    SortingPopup = 1,
-    KeyMappingPopup = 2,
 }
 
 pub trait State {
@@ -34,27 +33,26 @@ pub trait State {
 }
 
 pub struct Controller {
-    pub all_states: [Box<dyn State>; 3],
-    pub current_state_index: AppWindows,
+    pub all_windows: [Box<dyn State>; 1],
+    pub current_window_index: AppWindows,
+    pub popup_stack: Vec<Box<dyn State>>,
     pub file_manager: FileManager,
 }
 
 impl Controller {
     pub fn new() -> Controller {
         Controller {
-            all_states: [
-                Box::new(ExplorerTable::new()),
-                Box::new(SortingPopUp::new()),
-                Box::new(KeyMappingPopup::new()),
-            ],
-            current_state_index: AppWindows::Explorer,
+            all_windows: [Box::new(ExplorerTable::new())],
+            current_window_index: AppWindows::Explorer,
+            popup_stack: Vec::new(),
             file_manager: FileManager::new(),
         }
     }
-    pub fn change_state(&mut self, new_window: AppWindows) {
-        self.all_states[self.current_state_index as usize].exit(&mut self.file_manager);
-        self.current_state_index = new_window;
-        self.all_states[self.current_state_index as usize].enter(&mut self.file_manager);
+
+    pub fn change_window(&mut self, new_window: AppWindows) {
+        self.all_windows[self.current_window_index as usize].exit(&mut self.file_manager);
+        self.current_window_index = new_window;
+        self.all_windows[self.current_window_index as usize].enter(&mut self.file_manager);
     }
 
     pub fn handle_events(&mut self) -> io::Result<AppEvents> {
@@ -62,21 +60,35 @@ impl Controller {
             // it's important to check that the event is a key press event as
             // crossterm also emits key release and repeat events on Windows.
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                let app_event = self.all_states[self.current_state_index as usize]
-                    .handle_key_event(key_event, &mut self.file_manager);
+                //if popups are active, handle popup instead of window
+                let app_event: AppEvents = if !self.popup_stack.is_empty() {
+                    self.popup_stack
+                        .last_mut()
+                        .unwrap()
+                        .handle_key_event(key_event, &mut self.file_manager)
+                } else {
+                    self.all_windows[self.current_window_index as usize]
+                        .handle_key_event(key_event, &mut self.file_manager)
+                };
+
                 match app_event {
                     AppEvents::None => Ok(AppEvents::None),
                     AppEvents::Exit => Ok(AppEvents::Exit),
-                    AppEvents::ChangeToSortingPopupWindow => {
-                        self.change_state(AppWindows::SortingPopup);
+                    AppEvents::OpenSortingPopupWindow => {
+                        self.popup_stack.push(Box::new(SortingPopUp::new()));
                         Ok(AppEvents::None)
                     }
                     AppEvents::ChangeToExplorerWindow => {
-                        self.change_state(AppWindows::Explorer);
+                        self.change_window(AppWindows::Explorer);
                         Ok(AppEvents::None)
                     }
-                    AppEvents::ChangeToKeyMappingPopupWindow => {
-                        self.change_state(AppWindows::KeyMappingPopup);
+                    AppEvents::OpenKeyMappingPopupWindow => {
+                        self.popup_stack.push(Box::new(KeyMappingPopup::new()));
+                        Ok(AppEvents::None)
+                    }
+                    AppEvents::ClosePopUp => {
+                        assert!(!self.popup_stack.is_empty());
+                        self.popup_stack.pop();
                         Ok(AppEvents::None)
                     }
                 }
@@ -86,6 +98,10 @@ impl Controller {
     }
 
     pub fn draw(&mut self, frame: &mut Frame) {
-        self.all_states[self.current_state_index as usize].draw(frame, &mut self.file_manager);
+        //Draw base window then all popups
+        self.all_windows[self.current_window_index as usize].draw(frame, &mut self.file_manager);
+        for x in &mut self.popup_stack {
+            x.draw(frame, &mut self.file_manager);
+        }
     }
 }
