@@ -51,10 +51,10 @@ impl State for ExplorerTable {
         match key_event.code {
             KeyCode::Char('q') => return AppEvents::Exit,
             KeyCode::Char('s') => {
-                return AppEvents::ChangeToSortingPopupWindow;
+                return AppEvents::OpenSortingPopupWindow;
             }
             KeyCode::Char('m') => {
-                return AppEvents::ChangeToKeyMappingPopupWindow;
+                return AppEvents::OpenKeyMappingPopupWindow;
             }
             KeyCode::Char('d') => {
                 match file_manager.dir_sorting {

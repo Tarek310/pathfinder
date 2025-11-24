@@ -25,7 +25,7 @@ impl State for KeyMappingPopup {
         key_event: KeyEvent,
         file_manager: &mut FileManager,
     ) -> AppEvents {
-        AppEvents::ChangeToExplorerWindow
+        AppEvents::ClosePopUp
     }
 
     fn draw(&mut self, frame: &mut Frame, _file_manager: &mut FileManager) {

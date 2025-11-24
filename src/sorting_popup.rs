@@ -49,10 +49,10 @@ impl State for SortingPopUp {
                 None => return AppEvents::None,
                 Some(sorting) => {
                     file_manager.sort(sorting);
-                    return AppEvents::ChangeToExplorerWindow;
+                    return AppEvents::ClosePopUp;
                 }
             },
-            KeyCode::Esc => return AppEvents::ChangeToExplorerWindow,
+            KeyCode::Esc => return AppEvents::ClosePopUp,
             _ => {}
         };
         AppEvents::None
