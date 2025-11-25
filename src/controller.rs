@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::explorer_table::ExplorerTable;
 use crate::file_manager::FileManager;
 use crate::key_mapping_popup::KeyMappingPopup;
-use crate::message::{MessageReceiver, MessageSender};
+use crate::message::{self, Message, MessageReceiver, MessageSender};
 use crate::new_file_popup::NewFilePopup;
 use crate::sorting_popup::SortingPopUp;
 use crate::text_field_popup::TextFieldPopup;
@@ -94,7 +94,9 @@ impl Controller {
                         Ok(AppEvents::None)
                     }
                     AppEvents::OpenTextFieldPopup => {
+                        let message = self.get_current_message();
                         self.popup_stack.push(Box::new(TextFieldPopup::new()));
+                        self.send_current_message(message);
                         Ok(AppEvents::None)
                     }
 
@@ -105,17 +107,10 @@ impl Controller {
 
                     AppEvents::ClosePopUp => {
                         assert!(!self.popup_stack.is_empty());
-                        let mut recent = self.popup_stack.pop().unwrap();
                         //pass down message
-                        if !self.popup_stack.is_empty() {
-                            self.popup_stack
-                                .last_mut()
-                                .unwrap()
-                                .handle_message(recent.get_message(), &mut self.file_manager);
-                        } else {
-                            self.all_windows[self.current_window_index as usize]
-                                .handle_message(recent.get_message(), &mut self.file_manager);
-                        }
+                        let message = self.get_current_message();
+                        self.popup_stack.pop();
+                        self.send_current_message(message);
                         Ok(AppEvents::None)
                     }
                 }
@@ -130,6 +125,28 @@ impl Controller {
         self.all_windows[self.current_window_index as usize].draw(frame, &mut self.file_manager);
         for x in &mut self.popup_stack {
             x.draw(frame, &mut self.file_manager);
+        }
+    }
+
+    /// Get message from currently active window
+    pub fn get_current_message(&mut self) -> Option<Message> {
+        if !self.popup_stack.is_empty() {
+            self.popup_stack.last_mut().unwrap().get_message()
+        } else {
+            self.all_windows[self.current_window_index as usize].get_message()
+        }
+    }
+
+    /// Send message to currently active window
+    pub fn send_current_message(&mut self, message: Option<Message>) {
+        if !self.popup_stack.is_empty() {
+            self.popup_stack
+                .last_mut()
+                .unwrap()
+                .handle_message(message, &mut self.file_manager);
+        } else {
+            self.all_windows[self.current_window_index as usize]
+                .handle_message(message, &mut self.file_manager);
         }
     }
 }
