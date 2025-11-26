@@ -53,7 +53,16 @@ impl MessageReceiver for NewFilePopup {
     }
 }
 
-impl MessageSender for NewFilePopup {}
+impl MessageSender for NewFilePopup {
+    fn get_message(&mut self) -> Option<Message> {
+        let index = self.list_state.selected().unwrap();
+        match index {
+            0 => Some(Message::String(String::from("File"))),
+            1 => Some(Message::String(String::from("Folder"))),
+            _ => None,
+        }
+    }
+}
 impl State for NewFilePopup {
     fn handle_key_event(
         &mut self,

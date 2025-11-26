@@ -11,6 +11,7 @@ use crate::{
 ///This popup is for retrieving a String from the user.
 ///The controller will pass the message to the window that requested this popup
 pub struct TextFieldPopup {
+    title: String,
     string: String,
     message: String,
 }
@@ -18,13 +19,20 @@ pub struct TextFieldPopup {
 impl TextFieldPopup {
     pub fn new() -> TextFieldPopup {
         TextFieldPopup {
+            title: String::from(""),
             string: String::from(""),
             message: String::from(""),
         }
     }
 }
 
-impl MessageReceiver for TextFieldPopup {}
+impl MessageReceiver for TextFieldPopup {
+    fn handle_message(&mut self, message: Option<Message>, _file_manager: &mut FileManager) {
+        if let Some(Message::String(message)) = message {
+            self.title = message;
+        }
+    }
+}
 
 impl MessageSender for TextFieldPopup {
     fn get_message(&mut self) -> Option<Message> {
@@ -71,7 +79,7 @@ impl State for TextFieldPopup {
         _file_manager: &mut crate::file_manager::FileManager,
     ) {
         let area = frame.area();
-        let popup_block = Block::bordered().title("file/folder name:");
+        let popup_block = Block::bordered().title(format!("{} name:", self.title));
         let popup_area = util::popup_area(area, 40, 10);
         let paragraph = Paragraph::new(String::from(&self.string)).block(popup_block);
 
@@ -84,4 +92,3 @@ impl State for TextFieldPopup {
         ));
     }
 }
-
