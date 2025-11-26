@@ -4,13 +4,13 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     Frame,
     style::{Style, Stylize},
-    widgets::{Block, List, ListState},
+    widgets::{Block, Clear, List, ListState},
 };
 
 use crate::{
     controller::{AppEvents, State},
-    file_manager::{self, FileManager},
-    message::{self, Message, MessageReceiver, MessageSender},
+    file_manager::FileManager,
+    message::{Message, MessageReceiver, MessageSender},
     util,
 };
 
@@ -83,12 +83,13 @@ impl State for NewFilePopup {
         let area = frame.area();
 
         let popup_block = Block::bordered().title("Create:");
-        let popup_area = util::popup_area(area, 10, 30);
+        let popup_area = util::popup_area(area, 20, 20);
 
         let list = List::new(vec!["File".to_owned(), "Folder".to_owned()])
             .block(popup_block)
             .highlight_style(Style::new().red());
 
+        frame.render_widget(Clear, popup_area);
         frame.render_stateful_widget(list, popup_area, &mut self.list_state);
     }
 }

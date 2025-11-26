@@ -22,8 +22,8 @@ impl MessageSender for KeyMappingPopup {}
 impl State for KeyMappingPopup {
     fn handle_key_event(
         &mut self,
-        key_event: KeyEvent,
-        file_manager: &mut FileManager,
+        _key_event: KeyEvent,
+        _file_manager: &mut FileManager,
     ) -> AppEvents {
         AppEvents::ClosePopUp
     }

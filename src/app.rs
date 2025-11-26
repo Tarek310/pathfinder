@@ -1,7 +1,6 @@
 use crate::controller::{AppEvents, Controller};
 use ratatui::DefaultTerminal;
 use ratatui::Frame;
-use ratatui::prelude::Backend;
 use std::io;
 
 pub struct App {

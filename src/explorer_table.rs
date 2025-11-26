@@ -6,7 +6,7 @@ use ratatui::Frame;
 use ratatui::layout::Constraint;
 use ratatui::prelude::{Line, Style, Stylize};
 use ratatui::symbols::border;
-use ratatui::widgets::{Block, Clear, Row, Table, TableState};
+use ratatui::widgets::{Block, Row, Table, TableState};
 use std::path::PathBuf;
 
 pub struct ExplorerTable {

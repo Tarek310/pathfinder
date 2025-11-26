@@ -9,7 +9,6 @@ use crate::text_field_popup::TextFieldPopup;
 use crossterm::event;
 use crossterm::event::{Event, KeyEvent, KeyEventKind};
 use ratatui::Frame;
-use ratatui::widgets::Clear;
 use std::io;
 
 pub enum AppEvents {
