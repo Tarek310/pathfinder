@@ -1,6 +1,5 @@
-use crate::app::App;
 use crate::file_manager::FileManager;
-use crate::message::{self, Message, MessageReceiver, MessageSender};
+use crate::message::{Message, MessageReceiver, MessageSender};
 use crate::windows::explorer_table::ExplorerTable;
 use crate::windows::popups::confirmation_popup::ConfirmationPopup;
 use crate::windows::popups::key_mapping_popup::KeyMappingPopup;
