@@ -16,12 +16,14 @@ pub struct TextFieldPopup {
 }
 
 impl TextFieldPopup {
-    pub fn new() -> TextFieldPopup {
-        TextFieldPopup {
+    pub fn new(message: Option<Message>, file_manager: &mut FileManager) -> TextFieldPopup {
+        let mut popup = TextFieldPopup {
             title: String::from(""),
             string: String::from(""),
             message: String::from(""),
-        }
+        };
+        popup.handle_message(message, file_manager);
+        popup
     }
 }
 

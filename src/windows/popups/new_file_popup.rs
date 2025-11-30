@@ -22,11 +22,12 @@ pub struct NewFilePopup {
 }
 
 impl NewFilePopup {
-    pub fn new() -> NewFilePopup {
+    pub fn new(message: Option<Message>, file_manager: &mut FileManager) -> NewFilePopup {
         let mut popup = NewFilePopup {
             list_state: ListState::default(),
         };
         popup.list_state.select(Some(0));
+        popup.handle_message(message, file_manager);
         popup
     }
 }

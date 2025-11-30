@@ -12,11 +12,12 @@ pub struct SortingPopUp {
 }
 
 impl SortingPopUp {
-    pub fn new() -> SortingPopUp {
+    pub fn new(message: Option<crate::message::Message>, file_manager: &mut FileManager) -> SortingPopUp {
         let mut popup = SortingPopUp {
             list_state: ListState::default(),
         };
         popup.list_state.select(Some(0));
+        popup.handle_message(message, file_manager);
         popup
     }
 

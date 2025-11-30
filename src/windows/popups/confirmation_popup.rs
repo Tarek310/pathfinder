@@ -20,13 +20,14 @@ pub struct ConfirmationPopup {
 }
 
 impl ConfirmationPopup {
-    pub fn new() -> Self {
+    pub fn new(message: Option<Message>, file_manager: &mut FileManager) -> Self {
         let mut confirmation_popup = ConfirmationPopup {
             text: "".to_owned(),
             confirmation_result: None,
             list_state: ListState::default(),
         };
         confirmation_popup.list_state.select(Some(0));
+        confirmation_popup.handle_message(message, file_manager);
         confirmation_popup
     }
 }
