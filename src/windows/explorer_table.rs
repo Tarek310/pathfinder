@@ -57,12 +57,8 @@ impl MessageReceiver for ExplorerTable {
         match self.message_source {
             MessageSource::DeletionConfirmationPrompt => {
                 if let Some(Message::Bool(true)) = message {
-                    if let Some(path) = self.selected_file_in_table(file_manager) {
-                        if file_manager.delete(&path).is_ok() {
-                            file_manager.update();
-                        } else {
-                            todo!("handle deletion error")
-                        }
+                    if file_manager.delete_selection().is_err() {
+                        todo!("handle deletion error")
                     }
                 }
             }
@@ -155,23 +151,29 @@ impl State for ExplorerTable {
                     self.table_state.select(Some(0));
                 }
             }
-            //copy
-            KeyCode::Char('c') | KeyCode::Char('C') => {
+
+            //add file/folder to selection
+            KeyCode::Char('y') => {
                 let path = match self.selected_file_in_table(file_manager) {
                     None => return AppEvents::None,
                     Some(path) => path,
                 };
-                if key_event.modifiers.contains(KeyModifiers::SHIFT) {
-                    file_manager.add_copy(path);
-                } else {
-                    file_manager.copy(path);
-                }
+                file_manager.add_to_selection(path);
             }
-            //paste
+
+            //clear selection
+            KeyCode::Char('c') => {
+                file_manager.clear_selection();
+            }
+            //paste selection
             KeyCode::Char('v') => match file_manager.paste() {
                 Err(_e) => return AppEvents::None,
-                Ok(_) => file_manager.update(),
+                Ok(_) => {
+                    file_manager.clear_selection();
+                }
             },
+
+            //delete selection
             KeyCode::Char('x') => {
                 self.message_source = MessageSource::DeletionConfirmationPrompt;
                 self.message = Some(Message::String(

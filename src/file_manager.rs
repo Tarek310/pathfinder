@@ -128,8 +128,12 @@ impl FileManager {
         }
     }
 
-    ///When copying multiple files, use this function
-    pub fn add_copy(&mut self, pb: PathBuf) {
+    pub fn clear_selection(&mut self) {
+        self.selection.clear();
+    }
+
+    ///add file to selection
+    pub fn add_to_selection(&mut self, pb: PathBuf) {
         let full_path = std::path::absolute(pb);
         match full_path {
             Ok(full_path) => {
@@ -141,13 +145,14 @@ impl FileManager {
         }
     }
 
-    pub fn clear_copy(&mut self) {
+    pub fn delete_selection(&mut self) -> io::Result<()> {
+        let selection_clone = self.selection.clone();
+        for dest in &selection_clone {
+            self.delete(&dest.clone())?;
+        }
         self.selection.clear();
-    }
-
-    pub fn copy(&mut self, pb: PathBuf) {
-        self.clear_copy();
-        self.add_copy(pb);
+        self.update();
+        Ok(())
     }
 
     pub fn delete(&mut self, dest: &PathBuf) -> io::Result<()> {

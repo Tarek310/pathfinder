@@ -40,10 +40,10 @@ impl State for KeyMappingPopup {
         let mut popup_area = util::popup_area(area, 20, 30);
 
         let list = List::new(vec![
-            "<c> → copy".to_owned(),
-            "<shift + c> → add to copy".to_owned(),
-            "<v> → paste".to_owned(),
-            "<x> → delete".to_owned(),
+            "<c> → clear selection".to_owned(),
+            "<v> → paste selection".to_owned(),
+            "<x> → delete selection".to_owned(),
+            "<y> → add to selection".to_owned(),
             "<h> → toggle hidden files".to_owned(),
             "<d> → change folder positions".to_owned(),
             "<s> → open sorting popup".to_owned(),
