@@ -25,7 +25,7 @@ pub struct FileManager {
     curr_sort: Sorting,
     pub show_hidden: bool,
     pub dir_sorting: SortDir,
-    copy_buffer: Vec<PathBuf>,
+    selection: Vec<PathBuf>,
 }
 
 impl FileManager {
@@ -65,7 +65,7 @@ impl FileManager {
             curr_sort: Sorting::Unsorted,
             show_hidden: false,
             dir_sorting: SortDir::Unsorted,
-            copy_buffer: Vec::new(),
+            selection: Vec::new(),
         };
         fm.change_dir(PathBuf::from("."));
         fm
@@ -133,7 +133,7 @@ impl FileManager {
         let full_path = std::path::absolute(pb);
         match full_path {
             Ok(full_path) => {
-                self.copy_buffer.push(full_path);
+                self.selection.push(full_path);
             }
             Err(e) => {
                 panic!("{}", e.to_string());
@@ -142,7 +142,7 @@ impl FileManager {
     }
 
     pub fn clear_copy(&mut self) {
-        self.copy_buffer.clear();
+        self.selection.clear();
     }
 
     pub fn copy(&mut self, pb: PathBuf) {
@@ -165,7 +165,7 @@ impl FileManager {
     ///paste the content of copy_buffer into the current directory!
     ///deep-copies directories
     pub fn paste(&mut self) -> io::Result<()> {
-        for src in &self.copy_buffer {
+        for src in &self.selection {
             if src.is_file() {
                 fs::copy(
                     src,
